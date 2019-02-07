@@ -30,3 +30,7 @@ DerivedData
 xcuserdata
 
 *.iml
+
+*.class
+
+*.project
