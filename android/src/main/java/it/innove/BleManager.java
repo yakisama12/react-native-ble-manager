@@ -115,8 +115,22 @@ class BleManager extends ReactContextBaseJavaModule implements ActivityEventList
 			forceLegacy = options.getBoolean("forceLegacy");
 		}
 
+		boolean allowBackgroundHeadlessTask = false;
+        if (options.hasKey("allowBackgroundHeadlessTask")) {
+            allowBackgroundHeadlessTask = options.getBoolean("allowBackgroundHeadlessTask");
+        }
+
+		int backgroundWakeupInterval = 60; // in seconds
+		if (options.hasKey("backgroundWakeupInterval")) {
+			backgroundWakeupInterval = options.getInt("backgroundWakeupInterval");
+		}
+		int backgroundWakeupDuration = 20; // in seconds
+		if (options.hasKey("backgroundWakeupDuration")) {
+			backgroundWakeupDuration = options.getInt("backgroundWakeupDuration");
+		}
+
 		if (Build.VERSION.SDK_INT >= LOLLIPOP && !forceLegacy) {
-			scanManager = new LollipopScanManager(reactContext, this);
+			scanManager = new LollipopScanManager(reactContext, this, allowBackgroundHeadlessTask, backgroundWakeupInterval, backgroundWakeupDuration);
 		} else {
 			scanManager = new LegacyScanManager(reactContext, this);
 		}
