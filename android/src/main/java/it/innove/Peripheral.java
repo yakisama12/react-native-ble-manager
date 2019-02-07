@@ -52,7 +52,7 @@ public class Peripheral extends BluetoothGattCallback {
 	private byte[] advertisingDataBytes;
 	private int advertisingRSSI;
 	private boolean connected = false;
-	private ReactContext reactContext;
+	private transient ReactContext reactContext;
 
 	private BluetoothGatt gatt;
 
