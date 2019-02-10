@@ -34,3 +34,6 @@ xcuserdata
 *.class
 
 *.project
+
+*.prefs
+*.classpath

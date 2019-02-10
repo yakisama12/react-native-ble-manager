@@ -120,9 +120,9 @@ public class LollipopScanManager extends ScanManager {
 				@Override
 				public void run() {
                     Peripheral peripheral = bleManager.savePeripheral(result.getDevice(), result.getRssi(), result.getScanRecord());
+                    WritableMap map = peripheral.asWritableMap();
 
                     if (isAppOnForeground(mContext)) {
-                        WritableMap map = peripheral.asWritableMap();
                         bleManager.sendEvent("BleManagerDiscoverPeripheral", map);
                     } else {
                         if (!mallowBackgroundHeadlessTask) {
@@ -143,7 +143,13 @@ public class LollipopScanManager extends ScanManager {
                         if (diffInSecondsFromStart <= mbackgroundWakeupDuration) {
                             Gson gson = new Gson();
                             Intent serviceIntent = new Intent(context, HeadlessJobService.class);
-                            serviceIntent.putExtra("peripheral", gson.toJson(peripheral));
+                            ReadableMap advertising = map.getMap("advertising");
+                            ReadableMap manufacturerData = advertising.getMap("manufacturerData");
+                            ArrayList bytes = manufacturerData.getArray("bytes").toArrayList();
+                            ArrayList serviceUUIDs = advertising.getArray("serviceUUIDs").toArrayList();
+                            serviceIntent.putExtra("bytes", gson.toJson(bytes));
+                            serviceIntent.putExtra("serviceUUIDs", gson.toJson(serviceUUIDs));
+                            serviceIntent.putExtra("rssi", map.getInt("rssi"));
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                 context.startForegroundService(serviceIntent);
                             } else {
