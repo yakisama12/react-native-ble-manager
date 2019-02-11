@@ -12,11 +12,17 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
 import com.facebook.react.HeadlessJsTaskService;
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.*;
+import com.facebook.react.jstasks.HeadlessJsTaskConfig;
+import com.facebook.react.jstasks.HeadlessJsTaskContext;
+import com.facebook.react.jstasks.HeadlessJsTaskEventListener;
 import com.google.gson.Gson;
 
 import java.sql.Time;
@@ -29,10 +35,10 @@ import static com.facebook.react.bridge.UiThreadUtil.runOnUiThread;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class LollipopScanManager extends ScanManager {
-
     ReactApplicationContext mContext;
-    Date lastBackgroundUpdate = new Date(0);
-    Date startedListen = new Date();
+
+    private Date lastBackgroundUpdate = new Date(0);
+    private Date startedListen = new Date();
 
     private  boolean mallowBackgroundHeadlessTask;
     private int mbackgroundWakeupInterval;
@@ -122,7 +128,7 @@ public class LollipopScanManager extends ScanManager {
                     Peripheral peripheral = bleManager.savePeripheral(result.getDevice(), result.getRssi(), result.getScanRecord());
                     WritableMap map = peripheral.asWritableMap();
 
-                    if (isAppOnForeground(mContext)) {
+                    if (foreground) {
                         bleManager.sendEvent("BleManagerDiscoverPeripheral", map);
                     } else {
                         if (!mallowBackgroundHeadlessTask) {
@@ -172,26 +178,4 @@ public class LollipopScanManager extends ScanManager {
             bleManager.sendEvent("BleManagerStopScan", map);
 		}
 	};
-
-    private boolean isAppOnForeground(Context context) {
-        /**
-         We need to check if app is in foreground otherwise the app will crash.
-         http://stackoverflow.com/questions/8489993/check-android-application-is-in-foreground-or-not
-         **/
-        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> appProcesses =
-                activityManager.getRunningAppProcesses();
-        if (appProcesses == null) {
-            return false;
-        }
-        final String packageName = context.getPackageName();
-        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
-            if (appProcess.importance ==
-                    ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
-                    appProcess.processName.equals(packageName)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

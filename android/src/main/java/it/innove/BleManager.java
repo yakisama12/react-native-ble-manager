@@ -17,6 +17,7 @@ import android.util.Log;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -38,10 +39,11 @@ import static android.bluetooth.BluetoothProfile.GATT;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
 
-class BleManager extends ReactContextBaseJavaModule implements ActivityEventListener {
+class BleManager extends ReactContextBaseJavaModule implements ActivityEventListener, LifecycleEventListener {
 
 	public static final String LOG_TAG = "ReactNativeBleManager";
 	private static final int ENABLE_REQUEST = 539;
+    private boolean initialized = false;
 
 	private class BondRequest {
 		private String uuid;
@@ -72,6 +74,7 @@ class BleManager extends ReactContextBaseJavaModule implements ActivityEventList
 		context = reactContext;
 		this.reactContext = reactContext;
 		reactContext.addActivityEventListener(this);
+		reactContext.addLifecycleEventListener(this);
 		Log.d(LOG_TAG, "BleManager created");
 	}
 
@@ -102,8 +105,30 @@ class BleManager extends ReactContextBaseJavaModule implements ActivityEventList
 				.emit(eventName, params);
 	}
 
+    @Override
+    public void onHostResume() {
+        if (initialized) {
+            this.scanManager.foreground = true;
+        }
+    }
+
+    @Override
+    public void onHostPause() {
+        if (initialized) {
+            this.scanManager.foreground = true;
+        }
+    }
+
+    @Override
+    public void onHostDestroy() {
+	    if (initialized) {
+	        this.scanManager.foreground = false;
+        }
+    }
+
 	@ReactMethod
 	public void start(ReadableMap options, Callback callback) {
+        initialized = true;
 		Log.d(LOG_TAG, "start");
 		if (getBluetoothAdapter() == null) {
 			Log.d(LOG_TAG, "No bluetooth support");

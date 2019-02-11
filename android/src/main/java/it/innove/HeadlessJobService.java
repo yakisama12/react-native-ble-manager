@@ -20,9 +20,9 @@ public class HeadlessJobService extends HeadlessJsTaskService {
         Bundle extras = intent.getExtras();
         if (extras != null) {
             return new HeadlessJsTaskConfig(
-                    "SomeTaskName",
+                    "BGBleScan",
                     Arguments.fromBundle(extras),
-                    3000, // timeout for the task
+                    5000, // timeout for the task
                     false // optional: defines whether or not  the task is allowed in foreground. Default is false
             );
         }
@@ -33,17 +33,24 @@ public class HeadlessJobService extends HeadlessJsTaskService {
     public void onCreate() {
         super.onCreate();
 
-        if (Build.VERSION.SDK_INT >= 26) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String CHANNEL_ID = "foreground_awear";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
                     "Earning Points",
-                    NotificationManager.IMPORTANCE_NONE);
+                    NotificationManager.IMPORTANCE_MIN);
 
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
 
             Notification notification = new Notification.Builder(this, CHANNEL_ID)
                     .setContentTitle("")
                     .setContentText("").build();
+
+//            Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
+//                    .setContentText("SmartTracker Running")
+//                    .setAutoCancel(true);
+//
+//            Notification notification = builder.build();
+//            startForeground(1, notification);
 
             startForeground(1, notification);
         }

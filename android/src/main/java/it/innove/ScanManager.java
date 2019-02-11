@@ -18,6 +18,7 @@ public abstract class ScanManager {
 	protected ReactContext reactContext;
 	protected BleManager bleManager;
 	protected AtomicInteger scanSessionId = new AtomicInteger();
+	protected boolean foreground = true;
 
 	public ScanManager(ReactApplicationContext reactContext, BleManager bleManager) {
 		context = reactContext;
