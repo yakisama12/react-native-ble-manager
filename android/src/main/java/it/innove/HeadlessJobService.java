@@ -34,10 +34,10 @@ public class HeadlessJobService extends HeadlessJsTaskService {
         super.onCreate();
 
         if (Build.VERSION.SDK_INT >= 26) {
-            String CHANNEL_ID = "my_channel_01";
+            String CHANNEL_ID = "foreground_awear";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                    "Channel human readable title",
-                    NotificationManager.IMPORTANCE_DEFAULT);
+                    "Earning Points",
+                    NotificationManager.IMPORTANCE_NONE);
 
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
 
